@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3002
 const reglas = require('./politica/reglas')
-const usuarios = require('./data/usuarios.json')
+let usuarios = require('./data/usuarios.json')
 
 
 app.get('/validador',
@@ -28,9 +28,21 @@ app.get('/validador',
 app.get('/validador/con-reglas', 
     (req, res) => {
 
-        const reglasIncumplidas = [];
+        usuarios = usuarios.map(
+            (usuario) => {
+                const reglasIncumplidas = [];
+                reglas.forEach(
+                    (regla) => {
+                        if (!regla['fn'](usuario.password)){
+                            reglasIncumplidas.push(regla['regla'])
+                        }
+                    }
+                )
+                return {...usuario, 'reglasIncumplidas': reglasIncumplidas}
+            }
+        )
 
-        const clientesInvalidos = usuarios.filter(
+       const clientesInvalidos = usuarios.filter(
         (usuario) => {
             const valido = !reglas.every(
                 (regla) => regla['fn'](usuario.password)
@@ -39,7 +51,7 @@ app.get('/validador/con-reglas',
         }
     ).map(
         (usuario) => { 
-            return {'userName': usuario['userName'], 'email': usuario['email'], 'reglasIncumplidas': reglasIncumplidas}
+            return {'userName': usuario['userName'], 'email': usuario['email'], 'reglasIncumplidas': usuario['reglasIncumplidas']}
         }
     )
 
@@ -72,4 +84,4 @@ app.listen(PORT, () => {
 
 
 
-// Mandar 4 archivos: index.js, reglas.js, package.json, temp.txt
+

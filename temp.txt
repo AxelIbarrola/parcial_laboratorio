@@ -1,0 +1,3 @@
+En el endpoint '/validador-con-reglas' utilice
+map para agregarle a cada usuario la clave 'reglasIncumplidas',
+a su vez recorri con un forEach cada regla y guarde las que devolvian false.
